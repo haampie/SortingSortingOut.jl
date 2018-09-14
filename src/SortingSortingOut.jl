@@ -1,6 +1,6 @@
 module SortingSortingOut
 
-export serioussort!, Forward, Backward, Rev, By
+export sortsort!, sortsort, Forward, Backward, Rev, By
 
 include("ord.jl")
 include("sort.jl")
