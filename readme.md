@@ -102,7 +102,7 @@ end
 | 1_000  | 49.62 μs | 28.16 μs    | 43%      |
 | 100    | 2.296 μs | 787.5 ns    | 65%      |
 
-```
+```julia
 using SortingSortingOut, BenchmarkTools
 
 function sort_by_magnitude(n = 1_000)
