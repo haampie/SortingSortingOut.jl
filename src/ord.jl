@@ -30,6 +30,7 @@ struct TrivialOrder{T,Op,Rev,F} <: Ord
     isless::Op
     fs::F
 
+    TrivialOrder{T,R}(isless::Op, fs::F) where {T,Op,R,F} = new{T,Op,R,F}(isless, fs)
     TrivialOrder{T}(isless::Op, fs::F) where {T,Op,F} = new{T,Op,false,F}(isless, fs)
     TrivialOrder{T}(isless::Op) where {T,Op} = new{T,Op,false,Tuple{}}(isless, ())
 end
@@ -54,5 +55,5 @@ end
     ElT = Base._return_type(o.f, Tuple{T})
     TrivialOrder{ElT}(f.isless, newf)
 end
-@inline merge(o::Rev, f::TrivialOrder{T,O,R,B}) where {T,O,R,B} = TrivialOrder{T,O,!R,B}(f.isless, f.fs)
+@inline merge(o::Rev, f::TrivialOrder{T,O,R,B}) where {T,O,R,B} = TrivialOrder{T,!R}(f.isless, f.fs)
 @inline merge(o::Ord, f) = o

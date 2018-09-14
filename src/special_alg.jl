@@ -2,7 +2,8 @@
 ### Special algorithm for sorting floating points
 ###
 
-# todo doesn't take reverse param into account now.
+
+using Core.Intrinsics: slt_int
 
 const Floats = Union{Float32,Float64}
 
@@ -11,8 +12,8 @@ function _serioussort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::
     i, j = lo, hi = movenans!(v, o, lo, hi)
     # Pre-process [negative | positive]
     @inbounds while true
-        while i ≤ j &&  hassign(by(o, v[i])); i += 1; end
-        while i ≤ j && !hassign(by(o, v[j])); j -= 1; end
+        while i ≤ j &&  hassign(v[i], o); i += 1; end
+        while i ≤ j && !hassign(v[j], o); j -= 1; end
         i ≤ j || break
         v[i], v[j] = v[j], v[i]
         i += 1; j -= 1

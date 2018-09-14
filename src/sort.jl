@@ -1,4 +1,9 @@
 
+using Base.Sort: Algorithm, QuickSortAlg, InsertionSortAlg, SMALL_THRESHOLD,
+                 SMALL_ALGORITHM
+
+# General API (without kwargs so far)
+
 # Now dispatch on the effective binary op + element type after the transformations
 serioussort!(xs, o::Ord = Forward) = 
     serioussort!(xs, first(axes(xs, 1)), last(axes(xs, 1)), QuickSort, o)
@@ -7,8 +12,7 @@ serioussort!(xs::AbstractVector{T}, lo::Int, hi::Int, a::Algorithm, o::Ord) wher
     _serioussort!(xs, lo, hi, a, flatten(o, T))
 
 
-# Some algorithms
-
+# Some implementations
 
 ###
 ### Insertion sort
