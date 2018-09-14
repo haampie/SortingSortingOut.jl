@@ -6,17 +6,25 @@ Experiments with a new sorting & ordering API for Julia.
 
 ### Composable order types
 
-Example:
+Exports functor-like objects `By`, `Rev` and `Op` and the predefined ordering
+
 ```julia
-> method_in_some_package!(xs::AbstractVector, ord) = sortsort!(xs, By(abs, ord))
+const Forward = Op(isless)
+const Backward = Rev(Forward)
+```
 
-> xs = randn(4)
-> perm = collect(1:4)
-> ord = By(i -> xs[i])
-> method_in_some_package!(perm, ord)
+These objects compose well:
 
-> @show xs[perm]
-xs[perm] = [-0.571557, 0.743993, -0.953531, -1.65002]
+```julia
+method_in_some_package!(xs::AbstractVector, ord) = sortsort!(xs, Rev(By(abs, ord)))
+
+xs = randn(7)
+perm = collect(1:7)
+ord = By(i -> xs[i])
+method_in_some_package!(perm, ord)
+
+@show xs[perm]
+# xs[perm] = [-1.20628, 1.03054, -0.929885, -0.620184, 0.391168, -0.29274, 0.172728]
 ```
 
 ### Better dispatch of specialized algorithms
