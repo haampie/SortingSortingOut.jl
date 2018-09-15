@@ -68,11 +68,11 @@ The above is completely equivalent to:
 
 #### Example: sorting products by weight
 
-| n      | `sort!`  | `sortsort!` | % faster |
-|--------|----------|-------------|----------|
-| 10_000 | 1.113 ms | 560.6 μs    | 50%      |
-| 1_000  | 66.00 μs | 11.66 μs    | 82%      |
-| 100    | 2.021 μs | 615.6 ns    | 70%      |
+| n      | `sort!`  | `sortsort!` | speedup |
+|--------|----------|-------------|---------|
+| 10_000 | 1.113 ms | 560.6 μs    | 2.0x    |
+| 1_000  | 66.00 μs | 11.66 μs    | 5.7x    |
+| 100    | 2.021 μs | 615.6 ns    | 3.3x    |
 
 ```julia
 using SortingSortingOut, BenchmarkTools
@@ -96,11 +96,11 @@ end
 
 #### Example: sorting complex numbers by absolute magnitude
 
-| n      | `sort!`  | `sortsort!` | % faster |
-|--------|----------|-------------|----------|
-| 10_000 | 1.128 ms | 722.3 μs    | 35%      |
-| 1_000  | 49.62 μs | 28.16 μs    | 43%      |
-| 100    | 2.296 μs | 787.5 ns    | 65%      |
+| n      | `sort!`  | `sortsort!` | speedup |
+|--------|----------|-------------|---------|
+| 10_000 | 1.128 ms | 722.3 μs    | 1.6x    |
+| 1_000  | 49.62 μs | 28.16 μs    | 1.8x    |
+| 100    | 2.296 μs | 787.5 ns    | 2.9x    |
 
 ```julia
 using SortingSortingOut, BenchmarkTools
