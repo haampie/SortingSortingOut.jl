@@ -49,6 +49,7 @@ end
 # Flatten a given order
 @inline flatten(o::Op{F}, ::Type{T}) where {F,T} = TrivialOrder{T}(o.isless)
 @inline flatten(o::Union{Rev,By}, ::Type{T}) where {T} = merge(o, flatten(o.isless, T))
+@inline flatten(o::Ord, ::Type{T}) where {T} = o
 
 @inline function merge(o::By{F}, f::TrivialOrder{T,O,R,B}) where {F,T,O,R,B}
     newf = (o.f, f.fs...)
