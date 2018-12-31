@@ -6,10 +6,10 @@ using SortingSortingOut, BenchmarkTools, Random
 function sort_by_magnitude(n = 1_000)
     xs = rand(ComplexF64, n)
 
-    @info "Sanity check" sort(xs, by=abs2) == sortsort(xs, By(abs2))
+    @info "Sanity check" sort(xs, by=abs2) == my_sort(xs, By(abs2))
 
     fst = @benchmark sort!(ys, by = $abs2) setup = (ys = copy($xs))
-    snd = @benchmark sortsort!(ys, $(By(abs2))) setup = (ys = copy($xs))
+    snd = @benchmark my_sort!(ys, $(By(abs2))) setup = (ys = copy($xs))
 
     fst, snd
 end
@@ -27,10 +27,10 @@ weight(p::Product) = p.weight
 function sort_products(n = 100)
     products = [Product(rand(1:100), 100rand()) for i = 1 : n]
 
-    @info "Sanity check" sort(products, by=weight) == sortsort(products, By(weight))
+    @info "Sanity check" sort(products, by=weight) == my_sort(products, By(weight))
 
     fst = @benchmark sort!(ps, by = $weight) setup = (ps = copy($products))
-    snd = @benchmark sortsort!(ps, $(By(weight))) setup = (ps = copy($products))
+    snd = @benchmark my_sort!(ps, $(By(weight))) setup = (ps = copy($products))
 
     fst, snd
 end

@@ -4,14 +4,14 @@ using Base.Sort: Algorithm, QuickSortAlg, InsertionSortAlg, SMALL_THRESHOLD,
 
 # General API (without kwargs so far)
 
-sortsort(xs, o::Ord = Forward) = 
-    sortsort!(copy(xs), o)
+my_sort(xs, o::Ord = Forward) = 
+    my_sort!(copy(xs), o)
 
-sortsort!(xs, o::Ord = Forward) = 
-    sortsort!(xs, first(axes(xs, 1)), last(axes(xs, 1)), QuickSort, o)
+my_sort!(xs, o::Ord = Forward) = 
+    my_sort!(xs, first(axes(xs, 1)), last(axes(xs, 1)), QuickSort, o)
 
-sortsort!(xs::AbstractVector{T}, lo::Int, hi::Int, a::Algorithm, o::Ord) where {T} = 
-    _sortsort!(xs, lo, hi, a, flatten(o, T))
+my_sort!(xs::AbstractVector{T}, lo::Int, hi::Int, a::Algorithm, o::Ord) where {T} = 
+    _my_sort!(xs, lo, hi, a, flatten(o, T))
 
 
 # Some implementations
@@ -19,7 +19,7 @@ sortsort!(xs::AbstractVector{T}, lo::Int, hi::Int, a::Algorithm, o::Ord) where {
 ###
 ### Insertion sort
 ###
-function _sortsort!(v::AbstractVector, lo::Int, hi::Int, ::InsertionSortAlg, less::Ord)
+function _my_sort!(v::AbstractVector, lo::Int, hi::Int, ::InsertionSortAlg, less::Ord)
     @inbounds for i = lo+1:hi
         j = i
         x = v[i]
@@ -39,18 +39,18 @@ end
 ###
 ### Quicksort
 ###
-function _sortsort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, less::Ord)
+function _my_sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, less::Ord)
     @inbounds while lo < hi
-        hi-lo <= SMALL_THRESHOLD && return _sortsort!(v, lo, hi, SMALL_ALGORITHM, less)
+        hi-lo <= SMALL_THRESHOLD && return _my_sort!(v, lo, hi, SMALL_ALGORITHM, less)
         j = partition!(v, lo, hi, less)
         if j-lo < hi-j
             # recurse on the smaller chunk
             # this is necessary to preserve O(log(n))
             # stack space in the worst case (rather than O(n))
-            lo < (j-1) && _sortsort!(v, lo, j-1, a, less)
+            lo < (j-1) && _my_sort!(v, lo, j-1, a, less)
             lo = j+1
         else
-            j+1 < hi && _sortsort!(v, j+1, hi, a, less)
+            j+1 < hi && _my_sort!(v, j+1, hi, a, less)
             hi = j-1
         end
     end

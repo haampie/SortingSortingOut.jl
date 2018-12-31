@@ -16,7 +16,7 @@ const Backward = Rev(Forward)
 These objects compose well:
 
 ```julia
-method_in_some_package!(xs::AbstractVector, ord) = sortsort!(xs, Rev(By(abs, ord)))
+method_in_some_package!(xs::AbstractVector, ord) = my_sort!(xs, Rev(By(abs, ord)))
 
 xs = randn(7)
 perm = collect(1:7)
@@ -57,18 +57,18 @@ transformations. An explicit example:
 TrivialOrder{Float64,typeof(isless),false,Tuple{typeof(inv),typeof(abs)}}(isless, (inv, abs))
 # Effectively this order comes down to sorting `Float64` with `isless`, so sorting will
 # automatically dispatch on the efficient algorithm for this order.
-> sortsort!(xs, effective_ord)
+> my_sort!(xs, effective_ord)
 ```
 
 The above is completely equivalent to:
 
 ```julia
-> sortsort!(xs, ord)
+> my_sort!(xs, ord)
 ```
 
 #### Example: sorting products by weight
 
-| n      | `sort!`  | `sortsort!` | speedup |
+| n      | `sort!`  | `my_sort!` | speedup |
 |--------|----------|-------------|---------|
 | 10_000 | 1.113 ms | 560.6 μs    | 2.0x    |
 | 1_000  | 66.00 μs | 11.66 μs    | 5.7x    |
@@ -88,7 +88,7 @@ function sort_products(n = 100)
     products = [Product(rand(1:100), 100rand()) for i = 1 : n]
 
     fst = @benchmark sort!(ps, by = $weight) setup = (ps = copy($products))
-    snd = @benchmark sortsort!(ps, $(By(weight))) setup = (ps = copy($products))
+    snd = @benchmark my_sort!(ps, $(By(weight))) setup = (ps = copy($products))
 
     fst, snd
 end
@@ -96,7 +96,7 @@ end
 
 #### Example: sorting complex numbers by absolute magnitude
 
-| n      | `sort!`  | `sortsort!` | speedup |
+| n      | `sort!`  | `my_sort!` | speedup |
 |--------|----------|-------------|---------|
 | 10_000 | 1.128 ms | 722.3 μs    | 1.6x    |
 | 1_000  | 49.62 μs | 28.16 μs    | 1.8x    |
@@ -109,7 +109,7 @@ function sort_by_magnitude(n = 1_000)
     xs = rand(ComplexF64, n)
 
     fst = @benchmark sort!(ys, by = $abs2) setup = (ys = copy($xs))
-    snd = @benchmark sortsort!(ys, $(By(abs2))) setup = (ys = copy($xs))
+    snd = @benchmark my_sort!(ys, $(By(abs2))) setup = (ys = copy($xs))
 
     fst, snd
 end
@@ -127,3 +127,18 @@ function `maybe_something` returns for instance `Union{T,Missing}` values.
 However, AFAIK this cannot yet work because we cannot convince the compiler (without 
 overhead) that a value of type `Union{T,Nothing}` is actually a `T`  -- even when we're 
 100% sure it is.
+
+### `maximum` and `minimum` accept `Ord` instances
+
+Two changes to these methods:
+1. They return `nothing` when an empty collection is passed
+2. They accept `Ord` instances and satisfy 
+   `my_maximum(xs, ord) == my_sort(Vector(xs), ord)[end]` and 
+   `my_minimum(xs, ord) === my_sort(Vector(xs), ord)[1]`.
+
+```julia
+using SortingSortingOut
+
+my_maximum([1, -2, 3, -5], By(abs)) # -5
+my_maximum((i for i = 1 : 10), Forward) # 10
+```

@@ -8,7 +8,7 @@ using Core.Intrinsics: slt_int
 const Floats = Union{Float32,Float64}
 
 # Specialization for floating point numbers
-function _sortsort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::TrivialOrder{T,typeof(isless),reverse}) where {T<:Floats, reverse}
+function _my_sort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::TrivialOrder{T,typeof(isless),reverse}) where {T<:Floats, reverse}
     i, j = lo, hi = movenans!(v, o, lo, hi)
     # Pre-process [negative | positive]
     @inbounds while true
@@ -20,8 +20,8 @@ function _sortsort!(v::AbstractVector, lo::Int, hi::Int, a::QuickSortAlg, o::Tri
     end
 
     fastorder = TrivialOrder{T}((a,b) -> slt_int(a,b), o.fs)
-    _sortsort!(v, lo, j,  a, Rev(fastorder))
-    _sortsort!(v, i,  hi, a, fastorder)
+    _my_sort!(v, lo, j,  a, Rev(fastorder))
+    _my_sort!(v, i,  hi, a, fastorder)
     return v
 end
 
