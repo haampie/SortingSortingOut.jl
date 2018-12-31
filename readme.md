@@ -141,4 +141,5 @@ using SortingSortingOut
 
 my_maximum([1, -2, 3, -5], By(abs)) # -5
 my_maximum((i for i = 1 : 10), Forward) # 10
+my_maximum([]) # nothing
 ```
