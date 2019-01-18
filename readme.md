@@ -146,7 +146,7 @@ my_maximum([]) # nothing
 
 ### Make search convenient -- search by (transformed) value, not by specific vector element
 
-Currently there is an annoying [unresolved issue](https://github.com/JuliaLang/julia/issues/9429)
+Currently there is an [unresolved issue](https://github.com/JuliaLang/julia/issues/9429)
 in Julia Base where one has to construct a "fake" vector element in order to search. For 
 instance:
 
@@ -177,17 +177,16 @@ julia> searchsortedfirst(products, 100, lt = is_price_less)
 but this seems more verbose than necessary and will not work whenever the type of the 
 transformed value is equal to the original element type of the vector. 
 
-For instance, another potentially counterintuitive example where we hope to find the index 
-of the first element `>= -2`, but end up finding the index of the first element `>= 2`, 
-because the transformation is applied:
+For instance, suppose we have a vector of integers sorted by absolute magnitude, and we 
+naively search for the index of the first value greater than or equal to `-2`. This should 
+obvioulsy be the first index. The following does *not* work as (maybe?) expected
 
 ```julia
 julia> searchsortedfirst([1, 2, 2, 3, 3, 4], -2, by = abs)
 2
 ```
-
-The easiest way to solve this issue is to wrap `-2` in some `Value` struct so that we can
-still rely on multiple dispatch:
+since `-2` gets transformd to `2`. To solve this we have to provide a different comparison
+operator and build a `Wrapper` struct to make multiple dispatch work:
 
 ```julia
 julia> struct Wrapper
@@ -199,7 +198,7 @@ julia> searchsortedfirst([1, 2, 2, 3, 3, 4], Wrapper(-2), lt = abs_lt)
 1
 ```
 
-But this is even more verbose and harder to untangle. Also it does not seem to compose well.
+But this is very verbose and hard to untangle. Also it does not seem to compose well.
 
 To address this, this package provides a wrapper type called `Value` which allows you to 
 write simple one-liners:
