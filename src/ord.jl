@@ -1,5 +1,7 @@
 abstract type Ord end
 
+using Base: tail
+
 # Composable ordering objects
 
 struct Op{F} <: Ord
