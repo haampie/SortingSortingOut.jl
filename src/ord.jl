@@ -60,3 +60,24 @@ end
 end
 @inline merge(o::Rev, f::TrivialOrder{T,O,R,B}) where {T,O,R,B} = TrivialOrder{T,!R}(f.isless, f.fs)
 @inline merge(o::Ord, f) = o
+
+### Skipping the transformation with `Value` wrapper
+
+struct Value
+    value
+end
+
+@inline (o::Op)(a::Value, b) = o.isless(a.value, b)
+@inline (o::Op)(a, b::Value) = o.isless(a, b.value)
+@inline (o::Op)(a::Value, b::Value) = o.isless(a.value, b.value)
+@inline (o::By)(a::Value, b) = o.isless(a, o.f(b))
+@inline (o::By)(a, b::Value) = o.isless(o.f(a), b)
+@inline (o::By)(a::Value, b::Value) = o.isless(a, b)
+
+@inline (o::TrivialOrder{T,Op,false})(a::Value, b) where {T, Op} = o.isless(a.value, by(o, b))
+@inline (o::TrivialOrder{T,Op,false})(a, b::Value) where {T, Op} = o.isless(by(o, a), b.value)
+@inline (o::TrivialOrder{T,Op,false})(a::Value, b::Value) where {T, Op} = o.isless(a.value, b.value)
+
+@inline (o::TrivialOrder{T,Op,true})(a, b::Value) where {T, Op} = o.isless(b.value, by(o, a))
+@inline (o::TrivialOrder{T,Op,true})(a::Value, b) where {T, Op} = o.isless(by(o, b), a.value)
+@inline (o::TrivialOrder{T,Op,true})(a::Value, b::Value) where {T, Op} = o.isless(b.value, a.value)

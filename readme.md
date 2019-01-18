@@ -143,3 +143,56 @@ my_maximum([1, -2, 3, -5], By(abs)) # -5
 my_maximum((i for i = 1 : 10), Forward) # 10
 my_maximum([]) # nothing
 ```
+
+### Make search convenient -- search by (transformed) value, not by specific vector element
+
+Currently there is an annoying [unresolved issue](https://github.com/JuliaLang/julia/issues/9429)
+in Julia Base where one has to construct a "fake" vector element in order to search. For 
+instance:
+
+```julia
+julia> struct Product
+         name::String
+         price::Int
+       end;
+
+julia> products = [Product("Apple", 75), Product("Book", 1200), Product("Car", 50000)];
+
+julia> searchsortedfirst(products, 100, by = p -> p.price)
+ERROR: type Int64 has no field price
+
+julia> searchsortedfirst(products, Product("Fake product", 100), by = p -> p.price)
+2
+```
+
+Another potentially counterintuitive example where we hope to find the index of the first 
+element `>= -2`, but end up finding the index of the first element `>= 2`, because the 
+transformation is applied:
+
+```julia
+julia> searchsortedfirst([1, 2, 2, 3, 3, 4], -2, by = abs)
+2
+```
+
+The solution in this package is to have a simple wrapper type which indicates that we are
+searching for an exact value to which no transformation should apply:
+
+```julia
+julia> lowerbound(products, 100, By(p -> p.price))
+ERROR: type Int64 has no field price
+
+julia> lowerbound(products, Value(100), By(p -> p.price))
+2
+
+julia> lowerbound([1, 2, -2, 3, 3, 4], -2, By(abs)) # transformation applies to -2
+2
+
+julia> lowerbound([1, 2, -2, 3, 3, 4], Value(-2), By(abs)) # no transformation of -2
+1
+```
+
+Also note that the functions have been renamed a bit:
+
+- `searchsortedfirst` -> `lowerbound`
+- `searchsortedlast` -> `upperbound`
+- `searchsorted` -> `equalrange`
