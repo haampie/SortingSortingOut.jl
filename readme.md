@@ -165,17 +165,44 @@ julia> searchsortedfirst(products, Product("Fake product", 100), by = p -> p.pri
 2
 ```
 
-Another potentially counterintuitive example where we hope to find the index of the first 
-element `>= -2`, but end up finding the index of the first element `>= 2`, because the 
-transformation is applied:
+A solution to this problem is to implement a new comparison function:
+
+```julia
+julia> is_price_less(product::Product, price::Int) = isless(product.price, price);
+julia> is_price_less(price::Int, product::Product) = isless(price, product.price);
+julia> searchsortedfirst(products, 100, lt = is_price_less)
+2
+```
+
+but this seems more verbose than necessary and will not work whenever the type of the 
+transformed value is equal to the original element type of the vector. 
+
+For instance, another potentially counterintuitive example where we hope to find the index 
+of the first element `>= -2`, but end up finding the index of the first element `>= 2`, 
+because the transformation is applied:
 
 ```julia
 julia> searchsortedfirst([1, 2, 2, 3, 3, 4], -2, by = abs)
 2
 ```
 
-The solution in this package is to have a simple wrapper type which indicates that we are
-searching for an exact value to which no transformation should apply:
+The easiest way to solve this issue is to wrap `-2` in some `Value` struct so that we can
+still rely on multiple dispatch:
+
+```julia
+julia> struct Wrapper
+         value
+       end;
+julia> abs_lt(a, b::Wrapper) = isless(abs(a), b.value)
+julia> abs_lt(a::Wrapper, b) = isless(a.value, abs(b))
+julia> searchsortedfirst([1, 2, 2, 3, 3, 4], Wrapper(-2), lt = abs_lt)
+1
+```
+
+But this is even more verbose and harder to untangle. Also it does not seem to compose well.
+
+To address this, this package provides a wrapper type called `Value` which allows you to 
+write simple one-liners:
 
 ```julia
 julia> lowerbound(products, 100, By(p -> p.price))
